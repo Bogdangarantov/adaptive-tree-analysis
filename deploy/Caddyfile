@@ -1,15 +1,15 @@
 {$APP_DOMAIN} {
     encode zstd gzip
 
-    handle /api/* {
-        reverse_proxy app:8080
-    }
+    @api path /api/*
+    reverse_proxy @api app:8080
 
-    handle /ws* {
-        reverse_proxy app:8080
-    }
+    @ws path /ws /ws/*
+    reverse_proxy @ws app:8080
 
-    root * /srv
-    try_files {path} /index.html
-    file_server
+    handle {
+        root * /srv
+        try_files {path} /index.html
+        file_server
+    }
 }
