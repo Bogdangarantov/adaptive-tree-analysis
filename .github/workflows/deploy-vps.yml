@@ -78,10 +78,7 @@ jobs:
             set -eu
             mkdir -p '${VPS_APP_DIR}'
             tar -xzf '${VPS_APP_DIR}/release.tgz' -C '${VPS_APP_DIR}'
-            cat > '${VPS_APP_DIR}/.env.prod' <<EOF
-APP_DOMAIN=${APP_DOMAIN}
-DB_PASSWORD=${DB_PASSWORD}
-EOF
+            printf 'APP_DOMAIN=%s\nDB_PASSWORD=%s\n' '${APP_DOMAIN}' '${DB_PASSWORD}' > '${VPS_APP_DIR}/.env.prod'
             cd '${VPS_APP_DIR}'
             docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
             rm -f release.tgz
