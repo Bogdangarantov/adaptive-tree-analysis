@@ -1,0 +1,100 @@
+name: Deploy VPS
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+concurrency:
+  group: deploy-vps-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate deploy secrets
+        env:
+          APP_DOMAIN: ${{ secrets.APP_DOMAIN }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: |
+          test -n "${APP_DOMAIN}"
+          if [ "${#DB_PASSWORD}" -lt 20 ]; then
+            echo "DB_PASSWORD must be at least 20 characters long" >&2
+            exit 1
+          fi
+          if ! printf '%s' "${DB_PASSWORD}" | grep -Eq '[A-Z]'; then
+            echo "DB_PASSWORD must include an uppercase letter" >&2
+            exit 1
+          fi
+          if ! printf '%s' "${DB_PASSWORD}" | grep -Eq '[a-z]'; then
+            echo "DB_PASSWORD must include a lowercase letter" >&2
+            exit 1
+          fi
+          if ! printf '%s' "${DB_PASSWORD}" | grep -Eq '[0-9]'; then
+            echo "DB_PASSWORD must include a digit" >&2
+            exit 1
+          fi
+
+      - name: Prepare SSH key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Upload release bundle
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_APP_DIR: ${{ secrets.VPS_APP_DIR }}
+        run: |
+          tar -czf release.tgz \
+            application \
+            backend-ui-dto \
+            deploy \
+            ui \
+            docker-compose.prod.yml \
+            .env.prod.example
+          ssh "${VPS_USER}@${VPS_HOST}" "mkdir -p '${VPS_APP_DIR}'"
+          scp release.tgz "${VPS_USER}@${VPS_HOST}:${VPS_APP_DIR}/release.tgz"
+
+      - name: Deploy on server
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_APP_DIR: ${{ secrets.VPS_APP_DIR }}
+          APP_DOMAIN: ${{ secrets.APP_DOMAIN }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: |
+          ssh "${VPS_USER}@${VPS_HOST}" "
+            set -eu
+            mkdir -p '${VPS_APP_DIR}'
+            tar -xzf '${VPS_APP_DIR}/release.tgz' -C '${VPS_APP_DIR}'
+            cat > '${VPS_APP_DIR}/.env.prod' <<EOF
+APP_DOMAIN=${APP_DOMAIN}
+DB_PASSWORD=${DB_PASSWORD}
+EOF
+            cd '${VPS_APP_DIR}'
+            docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+            rm -f release.tgz
+          "
+
+      - name: Verify deployment
+        env:
+          APP_DOMAIN: ${{ secrets.APP_DOMAIN }}
+        run: |
+          for attempt in 1 2 3 4 5 6; do
+            if curl -fsS "https://${APP_DOMAIN}/api/v1/health"; then
+              exit 0
+            fi
+            sleep 10
+          done
+          exit 1

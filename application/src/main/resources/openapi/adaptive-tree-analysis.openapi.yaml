@@ -1,0 +1,115 @@
+openapi: 3.0.3
+info:
+  title: adaptive-tree-analysis API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/v1/health:
+    get:
+      operationId: getHealth
+      responses:
+        '200':
+          description: Health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /api/v1/trees/avl/operations:
+    post:
+      operationId: executeAvlOperation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AvlOperationRequest'
+      responses:
+        '200':
+          description: AVL operation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvlOperationResponse'
+        '400':
+          description: Invalid request payload
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, service]
+      properties:
+        status:
+          type: string
+        service:
+          type: string
+
+    TreeOperationType:
+      type: string
+      enum: [INSERT, DELETE, SEARCH]
+
+    AvlOperationRequest:
+      type: object
+      required: [operation, key]
+      properties:
+        operation:
+          $ref: '#/components/schemas/TreeOperationType'
+        key:
+          type: integer
+          format: int32
+
+    TreeStepEvent:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+        nodeKey:
+          type: integer
+          format: int32
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties:
+            oneOf:
+              - type: string
+              - type: number
+              - type: boolean
+              - type: 'null'
+          nullable: true
+
+    TreeMetrics:
+      type: object
+      required: [executionTimeNs, rotationCount, treeHeight, operationCount]
+      properties:
+        executionTimeNs:
+          type: integer
+          format: int64
+        rotationCount:
+          type: integer
+          format: int32
+        treeHeight:
+          type: integer
+          format: int32
+        operationCount:
+          type: integer
+          format: int32
+
+    AvlOperationResponse:
+      type: object
+      required: [treeType, operation, inputKey, steps, metrics]
+      properties:
+        treeType:
+          type: string
+          enum: [avl]
+        operation:
+          $ref: '#/components/schemas/TreeOperationType'
+        inputKey:
+          type: integer
+          format: int32
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/TreeStepEvent'
+        metrics:
+          $ref: '#/components/schemas/TreeMetrics'

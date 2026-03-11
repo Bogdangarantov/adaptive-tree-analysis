@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adaptive Tree Analysis | Coursework Project</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-project-diagram"></i>
+                <span>Adaptive Trees</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#visualization">Visualization</a></li>
+                <li><a href="#charts">Performance</a></li>
+                <li><a href="#demo">Demo</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">
+                    <span class="gradient-text">Adaptive Tree Analysis</span>
+                </h1>
+                <p class="hero-subtitle">Exploring Self-Balancing Data Structures for Optimal Algorithm Efficiency</p>
+                <button class="cta-button" onclick="scrollToSection('overview')">
+                    Explore Analysis <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+            <div class="hero-tree">
+                <svg id="heroTreeSVG" width="300" height="300" viewBox="0 0 300 300"></svg>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section class="section overview-section" id="overview">
+        <div class="container">
+            <h2 class="section-title fade-in">What is Adaptive Tree Analysis?</h2>
+            <p class="section-description fade-in">Adaptive self-balancing trees such as AVL, Red-Black and extensible trees dynamically maintain structure to ensure optimal performance across operations. This analysis focuses on comparing these adaptive search trees.</p>
+            
+            <div class="cards-grid">
+                <div class="glass-card fade-in" style="animation-delay: 0.1s">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h3>AVL Trees</h3>
+                    <p>Strictly balanced search tree with balance factor ±1. Ensures O(log n) operations through rotations.</p>
+                </div>
+
+                <div class="glass-card fade-in" style="animation-delay: 0.2s">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
+                        <i class="fas fa-circle"></i>
+                    </div>
+                    <h3>Red-Black Trees</h3>
+                    <p>Self-balancing using color properties. Faster insertions/deletions than AVL, slightly slower searches.</p>
+                </div>
+
+                <div class="glass-card fade-in" style="animation-delay: 0.3s">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <h3>Extensible Trees</h3>
+                    <p>Extensible search trees optimized for large datasets and block-oriented storage.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Tree Visualization Section -->
+    <section class="section viz-section" id="visualization">
+        <div class="container">
+            <h2 class="section-title fade-in">Tree Visualizations</h2>
+            <p class="section-description fade-in">Interactive visual representations of different tree structures</p>
+            
+            <div class="viz-grid">
+                <div class="viz-card glass-card fade-in">
+                    <h3><i class="fas fa-balance-scale"></i> AVL Tree (Balanced)</h3>
+                    <canvas id="avlCanvas" width="500" height="350"></canvas>
+                    <p class="viz-description">Self-balancing with balance factors displayed</p>
+                </div>
+
+                <div class="viz-card glass-card fade-in">
+                    <h3><i class="fas fa-circle"></i> Red-Black Tree</h3>
+                    <canvas id="rbCanvas" width="500" height="350"></canvas>
+                    <p class="viz-description">Color-coded nodes maintaining red-black properties</p>
+                </div>
+
+                <div class="viz-card glass-card fade-in">
+                    <h3><i class="fas fa-layer-group"></i> Extensible Tree</h3>
+                    <canvas id="bstCanvas" width="500" height="350"></canvas>
+                    <p class="viz-description">An extensible tree structure optimized for large blocks of data.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Performance Charts Section -->
+    <section class="section charts-section" id="charts">
+        <div class="container">
+            <h2 class="section-title fade-in">Performance Analysis</h2>
+            <p class="section-description fade-in">Comparative analysis of time complexity and efficiency metrics</p>
+            
+            <div class="charts-grid">
+                <div class="chart-card glass-card fade-in">
+                    <h3><i class="fas fa-chart-bar"></i> Operation Time Complexity</h3>
+                    <div style="height: 350px; position: relative;">
+                        <canvas id="complexityChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card glass-card fade-in">
+                    <h3><i class="fas fa-chart-line"></i> Tree Height Growth</h3>
+                    <div style="height: 350px; position: relative;">
+                        <canvas id="heightChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card glass-card fade-in full-width">
+                    <h3><i class="fas fa-chart-area"></i> Multi-Metric Comparison</h3>
+                    <div style="height: 400px; position: relative;">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complexity Table -->
+            <div class="complexity-table-wrapper fade-in">
+                <h3><i class="fas fa-table"></i> Algorithm Complexity Comparison</h3>
+                <div class="table-container glass-card">
+                    <table class="complexity-table">
+                        <thead>
+                            <tr>
+                                <th>Tree Type</th>
+                                <th>Search</th>
+                                <th>Insert</th>
+                                <th>Delete</th>
+                                <th>Space</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>AVL Tree</strong></td>
+                                <td><span class="complexity-badge best">O(log n)</span></td>
+                                <td><span class="complexity-badge best">O(log n)</span></td>
+                                <td><span class="complexity-badge best">O(log n)</span></td>
+                                <td><span class="complexity-badge best">O(n)</span></td>
+                                <td><span class="complexity-badge best">Strict ±1</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Red-Black Tree</strong></td>
+                                <td><span class="complexity-badge best">O(log n)</span></td>
+                                <td><span class="complexity-badge best">O(log n)</span></td>
+                                <td><span class="complexity-badge best">O(log n)</span></td>
+                                <td><span class="complexity-badge best">O(n)</span></td>
+                                <td><span class="complexity-badge good">Relaxed</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Extensible Tree</strong></td>
+                                <td><span class="complexity-badge best">O(log n)</span></td>
+                                <td><span class="complexity-badge best">O(log n)</span></td>
+                                <td><span class="complexity-badge best">O(log n)</span></td>
+                                <td><span class="complexity-badge best">O(n)</span></td>
+                                <td><span class="complexity-badge best">Extensible</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="table-note">* Amortized time complexity</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Demo Section -->
+    <section class="section demo-section" id="demo">
+        <div class="container">
+        <h2 class="section-title fade-in">Interactive Tree Demo</h2>
+        <p class="section-description fade-in">Build and manipulate your own search tree in real-time</p>
+            
+            <div class="demo-wrapper">
+                <div class="demo-controls glass-card fade-in">
+                    <h3><i class="fas fa-gamepad"></i> Tree Operations</h3>
+                    <div class="control-group">
+                        <input type="number" id="nodeValue" placeholder="Enter value..." class="control-input">
+                        <button class="control-btn insert-btn" onclick="insertNode()">
+                            <i class="fas fa-plus"></i> Insert
+                        </button>
+                    </div>
+                    <div class="control-group">
+                        <input type="number" id="searchValue" placeholder="Search value..." class="control-input">
+                        <button class="control-btn search-btn" onclick="searchNode()">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                    <div class="control-group">
+                        <input type="number" id="deleteValue" placeholder="Delete value..." class="control-input">
+                        <button class="control-btn delete-btn" onclick="deleteNode()">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                    <button class="control-btn reset-btn" onclick="resetTree()">
+                        <i class="fas fa-redo"></i> Reset Tree
+                    </button>
+                    
+                    <div class="demo-message" id="demoMessage"></div>
+                </div>
+
+                <div class="demo-canvas-wrapper glass-card fade-in">
+                    <canvas id="demoCanvas" width="700" height="500"></canvas>
+                </div>
+            </div>
+
+            <!-- Statistics Dashboard -->
+            <div class="stats-dashboard fade-in">
+                <div class="stat-card glass-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="treeHeight">0</div>
+                        <div class="stat-label">Tree Height</div>
+                    </div>
+                </div>
+
+                <div class="stat-card glass-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
+                        <i class="fas fa-circle-notch"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="nodeCount">0</div>
+                        <div class="stat-label">Node Count</div>
+                    </div>
+                </div>
+
+                <div class="stat-card glass-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="balanceFactor">0</div>
+                        <div class="stat-label">Balance Factor</div>
+                    </div>
+                </div>
+
+                <div class="stat-card glass-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="operationCount">0</div>
+                        <div class="stat-label">Operations</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4><i class="fas fa-project-diagram"></i> Adaptive Tree Analysis</h4>
+                    <p>A comprehensive coursework project comparing AVL trees, Red-Black trees, and extensible trees and their performance characteristics.</p>
+                </div>
+                <div class="footer-section">
+                    <h4><i class="fas fa-graduation-cap"></i> Course Information</h4>
+                    <p>Data Structures & Algorithms</p>
+                    <p>Academic Year 2024-2025</p>
+                </div>
+                <div class="footer-section">
+                    <h4><i class="fas fa-code"></i> Technologies</h4>
+                    <p>HTML5, CSS3, JavaScript</p>
+                    <p>Chart.js, Canvas API</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Adaptive Tree Analysis. Built for educational purposes.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/trees.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/demo.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

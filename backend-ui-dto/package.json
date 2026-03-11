@@ -1,0 +1,11 @@
+{
+  "name": "adaptive-tree-analysis-backend-ui-dto",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "generate": "./scripts/generate-dto.sh"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.7.0"
+  }
+}
