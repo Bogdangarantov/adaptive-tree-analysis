@@ -6,6 +6,6 @@
     "generate": "./scripts/generate-dto.sh"
   },
   "devDependencies": {
-    "openapi-typescript": "^7.7.0"
+    "openapi-typescript": "7.7.0"
   }
 }
