@@ -10,8 +10,12 @@
         <li><a href="#visualization">Visualization</a></li>
         <li><a href="#charts">Performance</a></li>
         <li><a href="#demo">Demo</a></li>
-        <li><a href="/benchmark">Benchmark</a></li>
+        <li><RouterLink to="/benchmark">Benchmark</RouterLink></li>
       </ul>
     </div>
   </nav>
 </template>
+
+<script setup lang="ts">
+import { RouterLink } from 'vue-router';
+</script>
