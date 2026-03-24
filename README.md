@@ -215,3 +215,62 @@
 - експериментальні результати
 - наукову новизну
 - сильну магістерську роботу
+
+---
+
+# CI/CD
+
+У репозиторії додано GitHub Actions pipeline:
+
+- `CI`:
+  - запускається на `pull_request` і `push` у `main`/`master`;
+  - виконує backend тести в `application` на Java 21 з PostgreSQL service;
+  - виконує frontend build у `ui`;
+  - перевіряє, що `backend-ui-dto/generated/api-types.ts` синхронізований з OpenAPI контрактом.
+
+- `CD`:
+  - запускається на `push` у `main`/`master` або вручну через `workflow_dispatch`;
+  - збирає backend JAR і frontend `dist`;
+  - публікує обидва результати як GitHub Actions artifacts.
+
+Окремо додано production deploy для VPS:
+
+- [docker-compose.prod.yml](/Users/bohdan/Projects/adaptive-tree-analysis/docker-compose.prod.yml)
+- [application/Dockerfile](/Users/bohdan/Projects/adaptive-tree-analysis/application/Dockerfile)
+- [deploy/caddy.Dockerfile](/Users/bohdan/Projects/adaptive-tree-analysis/deploy/caddy.Dockerfile)
+- [deploy/Caddyfile](/Users/bohdan/Projects/adaptive-tree-analysis/deploy/Caddyfile)
+- [deploy-vps.yml](/Users/bohdan/Projects/adaptive-tree-analysis/.github/workflows/deploy-vps.yml)
+
+Production схема:
+
+- `Caddy` автоматично випускає та поновлює HTTPS сертифікати для домену;
+- `Caddy` віддає frontend і проксіює `/api/*` та `/ws` на Spring Boot;
+- `PostgreSQL` працює як окремий контейнер у тому ж compose stack.
+- У production для PostgreSQL не публікуються host ports, тому БД доступна лише всередині docker network.
+
+Що потрібно на VPS:
+
+- Docker Engine + Docker Compose plugin;
+- відкриті порти `80`, `443`, `22`;
+- домен з `A` записом на IP сервера;
+- директорія для застосунку, наприклад `/opt/adaptive-tree-analysis`.
+
+GitHub Secrets для автоматичного deploy:
+
+- `VPS_HOST` — IP або домен VPS;
+- `VPS_USER` — SSH користувач;
+- `VPS_SSH_KEY` — приватний SSH ключ для деплою;
+- `VPS_APP_DIR` — директорія застосунку на сервері;
+- `APP_DOMAIN` — публічний домен, наприклад `tree.example.com`;
+- `DB_PASSWORD` — довгий випадковий пароль PostgreSQL, мінімум 20 символів, з великими/малими літерами та цифрами.
+
+Перший деплой:
+
+1. Встановити Docker і Docker Compose на VPS.
+2. Додати DNS запис домену на IP VPS.
+3. Додати secrets у GitHub repository settings.
+4. Запустити workflow `Deploy VPS` вручну або зробити push у `main`.
+
+Після цього `Caddy` сам отримає і буде оновлювати TLS-сертифікати, якщо домен уже вказує на сервер і порти `80/443` доступні з інтернету.
+
+Для локального `docker-compose.yml` порт PostgreSQL прив'язаний лише до `127.0.0.1:5433`, тому БД не слухає зовнішній інтерфейс машини.

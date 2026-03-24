@@ -25,6 +25,7 @@
 
 # Dependencies
 /ui/node_modules/
+/backend-ui-dto/node_modules/
 
 # IDE files
 /.idea/
