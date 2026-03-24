@@ -3,11 +3,11 @@
     <div class="hero-content">
       <div class="hero-text">
         <h1 class="hero-title">
-          <span class="gradient-text">Adaptive Tree Analysis</span>
+          <span class="gradient-text">Адаптивний аналіз дерев</span>
         </h1>
-        <p class="hero-subtitle">Exploring Self-Balancing Data Structures for Optimal Algorithm Efficiency</p>
+        <p class="hero-subtitle">Дослідження самобалансувальних структур даних для ефективних алгоритмів</p>
         <button class="cta-button" @click="callGlobalWithArg('scrollToSection', 'overview')">
-          Explore Analysis <i class="fas fa-arrow-right"></i>
+          Переглянути аналіз <i class="fas fa-arrow-right"></i>
         </button>
       </div>
       <div class="hero-tree">

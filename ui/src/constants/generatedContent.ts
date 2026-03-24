@@ -28,22 +28,22 @@ export interface FooterBlock {
 
 export const overviewCards: OverviewCard[] = [
   {
-    title: 'AVL Trees',
-    description: 'Strictly balanced search tree with balance factor ±1. Ensures O(log n) operations through rotations.',
+    title: 'AVL-дерева',
+    description: 'Строго збалансоване дерево пошуку з фактором балансу ±1. Забезпечує O(log n) для основних операцій завдяки ротаціям.',
     iconClass: 'fas fa-balance-scale',
     gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     delay: '0.1s'
   },
   {
-    title: 'Red-Black Trees',
-    description: 'Self-balancing using color properties. Faster insertions/deletions than AVL, slightly slower searches.',
+    title: 'Червоно-чорні дерева',
+    description: 'Самобалансування через кольорові властивості вузлів. Часто дають швидші вставки й видалення, ніж AVL, але трохи менш строгі за пошуком.',
     iconClass: 'fas fa-circle',
     gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
     delay: '0.2s'
   },
   {
-    title: 'Extensible Trees',
-    description: 'Extensible search trees optimized for large datasets and block-oriented storage.',
+    title: 'Splay-дерева',
+    description: 'Самоналаштовувані дерева пошуку, які підтягують нещодавно використані вузли ближче до кореня.',
     iconClass: 'fas fa-layer-group',
     gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
     delay: '0.3s'
@@ -52,12 +52,12 @@ export const overviewCards: OverviewCard[] = [
 
 export const complexityRows: ComplexityRow[] = [
   {
-    treeType: 'AVL Tree',
+    treeType: 'AVL-дерево',
     search: 'O(log n)',
     insert: 'O(log n)',
     delete: 'O(log n)',
     space: 'O(n)',
-    balance: 'Strict ±1',
+    balance: 'Строгий ±1',
     searchClass: 'best',
     insertClass: 'best',
     deleteClass: 'best',
@@ -65,12 +65,12 @@ export const complexityRows: ComplexityRow[] = [
     balanceClass: 'best'
   },
   {
-    treeType: 'Red-Black Tree',
+    treeType: 'Червоно-чорне дерево',
     search: 'O(log n)',
     insert: 'O(log n)',
     delete: 'O(log n)',
     space: 'O(n)',
-    balance: 'Relaxed',
+    balance: "М'який",
     searchClass: 'best',
     insertClass: 'best',
     deleteClass: 'best',
@@ -78,12 +78,12 @@ export const complexityRows: ComplexityRow[] = [
     balanceClass: 'good'
   },
   {
-    treeType: 'Extensible Tree',
+    treeType: 'Splay-дерево',
     search: 'O(log n)',
     insert: 'O(log n)',
     delete: 'O(log n)',
     space: 'O(n)',
-    balance: 'Extensible',
+    balance: 'Адаптивний',
     searchClass: 'best',
     insertClass: 'best',
     deleteClass: 'best',
@@ -97,17 +97,12 @@ export const footerBlocks: FooterBlock[] = [
     title: 'Adaptive Tree Analysis',
     iconClass: 'fas fa-project-diagram',
     lines: [
-      'A comprehensive coursework project comparing AVL trees, Red-Black trees, and extensible trees and their performance characteristics.'
+      'Навчальний проєкт для порівняння AVL, червоно-чорних і Splay-дерев та аналізу їхніх характеристик.'
     ]
   },
   {
-    title: 'Course Information',
-    iconClass: 'fas fa-graduation-cap',
-    lines: ['Data Structures & Algorithms', 'Academic Year 2024-2025']
-  },
-  {
-    title: 'Technologies',
+    title: 'Технології',
     iconClass: 'fas fa-code',
-    lines: ['HTML5, CSS3, JavaScript', 'Chart.js, Canvas API']
+    lines: ['Vue 3, TypeScript, D3.js', 'Spring Boot, REST API']
   }
 ];

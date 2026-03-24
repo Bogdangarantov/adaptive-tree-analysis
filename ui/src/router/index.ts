@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import GeneratedUiView from '../views/GeneratedUiView.vue';
 import BenchmarkView from '../views/BenchmarkView.vue';
+import PlaygroundView from '../views/PlaygroundView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -16,10 +17,7 @@ const router = createRouter({
     {
       path: '/playground',
       name: 'playground',
-      component: GeneratedUiView,
-      props: {
-        targetSection: 'demo'
-      }
+      component: PlaygroundView
     },
     {
       path: '/benchmark',

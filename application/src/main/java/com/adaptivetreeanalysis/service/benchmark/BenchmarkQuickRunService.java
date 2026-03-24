@@ -149,6 +149,9 @@ public class BenchmarkQuickRunService {
 
         long start = System.nanoTime();
         long operationCount = 0L;
+        long insertTimeNs = 0L;
+        long searchTimeNs = 0L;
+        long deleteTimeNs = 0L;
 
         long progressStep = Math.max(1_000L, totalOps / 100L);
         log.debug("[benchmark] runBenchmarkForTree treeType={}, progressStep={}", treeType, progressStep);
@@ -157,10 +160,20 @@ public class BenchmarkQuickRunService {
             for (int i = 0; i < datasetSize; i++) {
                 int key = keys[i];
                 OperationType op = operations[i];
+                long operationStartedAt = System.nanoTime();
                 switch (op) {
-                    case INSERT -> tree.insert(key);
-                    case SEARCH -> tree.search(key);
-                    case DELETE -> tree.delete(key);
+                    case INSERT -> {
+                        tree.insert(key);
+                        insertTimeNs += System.nanoTime() - operationStartedAt;
+                    }
+                    case SEARCH -> {
+                        tree.search(key);
+                        searchTimeNs += System.nanoTime() - operationStartedAt;
+                    }
+                    case DELETE -> {
+                        tree.delete(key);
+                        deleteTimeNs += System.nanoTime() - operationStartedAt;
+                    }
                 }
                 operationCount++;
                 doneOps[0]++;
@@ -183,6 +196,9 @@ public class BenchmarkQuickRunService {
                 treeType.value(),
                 "quick-run-v1",
                 executionTimeNs,
+                insertTimeNs,
+                searchTimeNs,
+                deleteTimeNs,
                 (int) operationCount,
                 rotationCount,
                 treeHeight,
@@ -299,4 +315,3 @@ public class BenchmarkQuickRunService {
         DELETE
     }
 }
-

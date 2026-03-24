@@ -20,6 +20,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/benchmark/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBenchmarkSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/trees/avl/operations": {
         parameters: {
             query?: never;
@@ -36,6 +52,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/trees/playground/operations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["executePlaygroundOperation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -44,12 +76,61 @@ export interface components {
             status: string;
             service: string;
         };
+        BenchmarkTreeSummaryResponse: {
+            treeType: string;
+            /** Format: int64 */
+            runCount: number;
+            /** Format: int64 */
+            totalOperations: number;
+            /** Format: int64 */
+            averageExecutionTimeNs: number;
+            /** Format: int64 */
+            bestExecutionTimeNs: number;
+            /** Format: double */
+            averageTreeHeight: number;
+            /** Format: int64 */
+            averageInsertTimeNs: number;
+            /** Format: int64 */
+            averageSearchTimeNs: number;
+            /** Format: int64 */
+            averageDeleteTimeNs: number;
+        };
+        BenchmarkSummaryResponse: {
+            /** Format: int64 */
+            totalRuns: number;
+            /** Format: int64 */
+            totalOperations: number;
+            /** Format: int64 */
+            averageExecutionTimeNs: number;
+            /** Format: int64 */
+            bestExecutionTimeNs: number;
+            trees: components["schemas"]["BenchmarkTreeSummaryResponse"][];
+        };
         /** @enum {string} */
         TreeOperationType: "INSERT" | "DELETE" | "SEARCH";
+        /** @enum {string} */
+        PlaygroundTreeType: "avl" | "red-black" | "splay";
         AvlOperationRequest: {
             operation: components["schemas"]["TreeOperationType"];
             /** Format: int32 */
             key: number;
+        };
+        PlaygroundTreeNode: {
+            /** Format: int32 */
+            key: number;
+            /** @enum {string|null} */
+            color?: "RED" | "BLACK" | null;
+            /** Format: int32 */
+            height?: number | null;
+            left?: components["schemas"]["PlaygroundTreeNode"] | null;
+            right?: components["schemas"]["PlaygroundTreeNode"] | null;
+        };
+        PlaygroundOperationRequest: {
+            treeType: components["schemas"]["PlaygroundTreeType"];
+            operation: components["schemas"]["TreeOperationType"];
+            /** Format: int32 */
+            key: number;
+            root?: components["schemas"]["PlaygroundTreeNode"] | null;
         };
         TreeStepEvent: {
             type: string;
@@ -77,6 +158,21 @@ export interface components {
             inputKey: number;
             steps: components["schemas"]["TreeStepEvent"][];
             metrics: components["schemas"]["TreeMetrics"];
+        };
+        PlaygroundTreeSnapshot: {
+            treeType: components["schemas"]["PlaygroundTreeType"];
+            root?: components["schemas"]["PlaygroundTreeNode"] | null;
+        };
+        PlaygroundOperationResponse: {
+            treeType: components["schemas"]["PlaygroundTreeType"];
+            operation: components["schemas"]["TreeOperationType"];
+            /** Format: int32 */
+            inputKey: number;
+            found: boolean;
+            changed: boolean;
+            steps: components["schemas"]["TreeStepEvent"][];
+            metrics: components["schemas"]["TreeMetrics"];
+            snapshot: components["schemas"]["PlaygroundTreeSnapshot"];
         };
     };
     responses: never;
@@ -107,6 +203,26 @@ export interface operations {
             };
         };
     };
+    getBenchmarkSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Aggregated benchmark summary across all saved runs */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BenchmarkSummaryResponse"];
+                };
+            };
+        };
+    };
     executeAvlOperation: {
         parameters: {
             query?: never;
@@ -127,6 +243,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AvlOperationResponse"];
+                };
+            };
+            /** @description Invalid request payload */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    executePlaygroundOperation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlaygroundOperationRequest"];
+            };
+        };
+        responses: {
+            /** @description Stateless playground tree operation result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlaygroundOperationResponse"];
                 };
             };
             /** @description Invalid request payload */

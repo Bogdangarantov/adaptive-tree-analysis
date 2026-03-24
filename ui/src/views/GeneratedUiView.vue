@@ -6,7 +6,7 @@
     <GeneratedOverviewSection />
     <GeneratedVisualizationSection />
     <GeneratedChartsSection />
-    <GeneratedDemoSection />
+    <GeneratedBenchmarkSummarySection />
     <GeneratedFooter />
   </div>
 </template>
@@ -18,7 +18,7 @@ import GeneratedHeroSection from '../components/generated/GeneratedHeroSection.v
 import GeneratedOverviewSection from '../components/generated/GeneratedOverviewSection.vue';
 import GeneratedVisualizationSection from '../components/generated/GeneratedVisualizationSection.vue';
 import GeneratedChartsSection from '../components/generated/GeneratedChartsSection.vue';
-import GeneratedDemoSection from '../components/generated/GeneratedDemoSection.vue';
+import GeneratedBenchmarkSummarySection from '../components/generated/GeneratedBenchmarkSummarySection.vue';
 import GeneratedFooter from '../components/generated/GeneratedFooter.vue';
 import { useGeneratedScripts } from '../composables/useGeneratedScripts';
 

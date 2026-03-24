@@ -1,26 +1,26 @@
 <template>
   <section class="section charts-section" id="charts">
     <div class="container">
-      <h2 class="section-title fade-in">Performance Analysis</h2>
-      <p class="section-description fade-in">Comparative analysis of time complexity and efficiency metrics</p>
+      <h2 class="section-title fade-in">Аналіз продуктивності</h2>
+      <p class="section-description fade-in">Порівняння часової складності та ключових метрик ефективності</p>
 
       <div class="charts-grid">
         <div class="chart-card glass-card fade-in">
-          <h3><i class="fas fa-chart-bar"></i> Operation Time Complexity</h3>
+          <h3><i class="fas fa-chart-bar"></i> Часова складність операцій</h3>
           <div style="height: 350px; position: relative;">
             <canvas id="complexityChart"></canvas>
           </div>
         </div>
 
         <div class="chart-card glass-card fade-in">
-          <h3><i class="fas fa-chart-line"></i> Tree Height Growth</h3>
+          <h3><i class="fas fa-chart-line"></i> Зростання висоти дерева</h3>
           <div style="height: 350px; position: relative;">
             <canvas id="heightChart"></canvas>
           </div>
         </div>
 
         <div class="chart-card glass-card fade-in full-width">
-          <h3><i class="fas fa-chart-area"></i> Multi-Metric Comparison</h3>
+          <h3><i class="fas fa-chart-area"></i> Порівняння за кількома метриками</h3>
           <div style="height: 400px; position: relative;">
             <canvas id="radarChart"></canvas>
           </div>
@@ -28,17 +28,17 @@
       </div>
 
       <div class="complexity-table-wrapper fade-in">
-        <h3><i class="fas fa-table"></i> Algorithm Complexity Comparison</h3>
+        <h3><i class="fas fa-table"></i> Порівняння алгоритмічної складності</h3>
         <div class="table-container glass-card">
           <table class="complexity-table">
             <thead>
               <tr>
-                <th>Tree Type</th>
-                <th>Search</th>
-                <th>Insert</th>
-                <th>Delete</th>
-                <th>Space</th>
-                <th>Balance</th>
+                <th>Тип дерева</th>
+                <th>Пошук</th>
+                <th>Вставка</th>
+                <th>Видалення</th>
+                <th>Пам'ять</th>
+                <th>Баланс</th>
               </tr>
             </thead>
             <tbody>
@@ -52,7 +52,7 @@
               </tr>
             </tbody>
           </table>
-          <p class="table-note">* Amortized time complexity</p>
+          <p class="table-note">* Амортизована часова складність</p>
         </div>
       </div>
     </div>

@@ -38,6 +38,15 @@ public class ExperimentStatEntity {
     @Column(name = "execution_time_ns", nullable = false)
     private Long executionTimeNs;
 
+    @Column(name = "insert_time_ns")
+    private Long insertTimeNs;
+
+    @Column(name = "search_time_ns")
+    private Long searchTimeNs;
+
+    @Column(name = "delete_time_ns")
+    private Long deleteTimeNs;
+
     @Column(name = "operation_count", nullable = false)
     private Integer operationCount;
 
@@ -100,6 +109,30 @@ public class ExperimentStatEntity {
 
     public Integer getOperationCount() {
         return operationCount;
+    }
+
+    public Long getInsertTimeNs() {
+        return insertTimeNs;
+    }
+
+    public void setInsertTimeNs(Long insertTimeNs) {
+        this.insertTimeNs = insertTimeNs;
+    }
+
+    public Long getSearchTimeNs() {
+        return searchTimeNs;
+    }
+
+    public void setSearchTimeNs(Long searchTimeNs) {
+        this.searchTimeNs = searchTimeNs;
+    }
+
+    public Long getDeleteTimeNs() {
+        return deleteTimeNs;
+    }
+
+    public void setDeleteTimeNs(Long deleteTimeNs) {
+        this.deleteTimeNs = deleteTimeNs;
     }
 
     public void setOperationCount(Integer operationCount) {

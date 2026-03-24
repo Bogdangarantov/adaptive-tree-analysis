@@ -23,6 +23,12 @@ public class AvlTree implements IntTree {
     private Node root;
     private int rotationCount;
 
+    public static AvlTree fromSnapshot(TreeStructureNode snapshot) {
+        AvlTree tree = new AvlTree();
+        tree.root = restore(snapshot);
+        return tree;
+    }
+
     @Override
     public void insert(int key) {
         root = insert(root, key);
@@ -200,10 +206,46 @@ public class AvlTree implements IntTree {
         return stats.count == 0 ? 0.0 : (double) stats.sum / stats.count;
     }
 
+    @Override
+    public TreeStructureNode snapshot() {
+        return snapshot(root);
+    }
+
     private static final class DepthStats {
         long sum;
         int count;
         int maxDepth;
+    }
+
+    private static Node restore(TreeStructureNode snapshot) {
+        if (snapshot == null) {
+            return null;
+        }
+
+        Node node = new Node(snapshot.key());
+        node.left = restore(snapshot.left());
+        node.right = restore(snapshot.right());
+        updateHeightStatic(node);
+        return node;
+    }
+
+    private static TreeStructureNode snapshot(Node node) {
+        if (node == null) {
+            return null;
+        }
+        return new TreeStructureNode(
+                node.key,
+                null,
+                node.height,
+                snapshot(node.left),
+                snapshot(node.right)
+        );
+    }
+
+    private static void updateHeightStatic(Node node) {
+        int leftH = node.left != null ? node.left.height : 0;
+        int rightH = node.right != null ? node.right.height : 0;
+        node.height = 1 + Math.max(leftH, rightH);
     }
 
     private DepthStats analyzeTree() {

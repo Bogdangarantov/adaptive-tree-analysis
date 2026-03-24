@@ -1,4 +1,11 @@
-import type { AvlOperationRequest, AvlOperationResponse, HealthResponse } from '@dto/api-types';
+import type { components } from '@dto/api-types';
+
+type HealthResponse = components['schemas']['HealthResponse'];
+type AvlOperationRequest = components['schemas']['AvlOperationRequest'];
+type AvlOperationResponse = components['schemas']['AvlOperationResponse'];
+export type PlaygroundOperationRequest = components['schemas']['PlaygroundOperationRequest'];
+export type PlaygroundOperationResponse = components['schemas']['PlaygroundOperationResponse'];
+export type BenchmarkSummaryResponse = components['schemas']['BenchmarkSummaryResponse'];
 
 const API_BASE = '/api/v1';
 
@@ -29,6 +36,9 @@ export interface BenchmarkQuickRunResponse {
     treeType: string;
     algorithmVersion?: string | null;
     executionTimeNs: number;
+    insertTimeNs?: number | null;
+    searchTimeNs?: number | null;
+    deleteTimeNs?: number | null;
     operationCount: number;
     rotationCount: number;
     treeHeight: number;
@@ -75,6 +85,30 @@ export async function runBenchmarkQuick(payload: BenchmarkQuickRunRequest): Prom
 
   if (!response.ok) {
     throw new Error(`Benchmark quick-run failed with status ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function getBenchmarkSummary(): Promise<BenchmarkSummaryResponse> {
+  const response = await fetch(`${API_BASE}/benchmark/summary`);
+  if (!response.ok) {
+    throw new Error(`Benchmark summary request failed with status ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function runPlaygroundOperation(payload: PlaygroundOperationRequest): Promise<PlaygroundOperationResponse> {
+  const response = await fetch(`${API_BASE}/trees/playground/operations`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Playground operation failed with status ${response.status}`);
   }
 
   return response.json();

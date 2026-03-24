@@ -1,16 +1,14 @@
 <template>
   <nav class="navbar">
     <div class="nav-container">
-      <div class="nav-logo">
+      <RouterLink class="nav-logo" to="/">
         <i class="fas fa-project-diagram"></i>
         <span>Adaptive Trees</span>
-      </div>
+      </RouterLink>
       <ul class="nav-menu">
-        <li><a href="#overview">Overview</a></li>
-        <li><a href="#visualization">Visualization</a></li>
-        <li><a href="#charts">Performance</a></li>
-        <li><a href="#demo">Demo</a></li>
-        <li><RouterLink to="/benchmark">Benchmark</RouterLink></li>
+        <li><RouterLink to="/">Головна</RouterLink></li>
+        <li><RouterLink to="/playground">Пісочниця</RouterLink></li>
+        <li><RouterLink to="/benchmark">Бенчмарк</RouterLink></li>
       </ul>
     </div>
   </nav>

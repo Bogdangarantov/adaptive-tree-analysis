@@ -21,5 +21,6 @@ public interface IntTree {
     int maxDepth();
 
     double avgDepth();
-}
 
+    TreeStructureNode snapshot();
+}

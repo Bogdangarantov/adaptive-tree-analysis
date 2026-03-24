@@ -15,6 +15,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthResponse'
+  /api/v1/benchmark/summary:
+    get:
+      operationId: getBenchmarkSummary
+      responses:
+        '200':
+          description: Aggregated benchmark summary across all saved runs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BenchmarkSummaryResponse'
   /api/v1/trees/avl/operations:
     post:
       operationId: executeAvlOperation
@@ -33,6 +43,24 @@ paths:
                 $ref: '#/components/schemas/AvlOperationResponse'
         '400':
           description: Invalid request payload
+  /api/v1/trees/playground/operations:
+    post:
+      operationId: executePlaygroundOperation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaygroundOperationRequest'
+      responses:
+        '200':
+          description: Stateless playground tree operation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaygroundOperationResponse'
+        '400':
+          description: Invalid request payload
 components:
   schemas:
     HealthResponse:
@@ -44,9 +72,67 @@ components:
         service:
           type: string
 
+    BenchmarkTreeSummaryResponse:
+      type: object
+      required:
+        [treeType, runCount, totalOperations, averageExecutionTimeNs, bestExecutionTimeNs, averageTreeHeight,
+         averageInsertTimeNs, averageSearchTimeNs, averageDeleteTimeNs]
+      properties:
+        treeType:
+          type: string
+        runCount:
+          type: integer
+          format: int64
+        totalOperations:
+          type: integer
+          format: int64
+        averageExecutionTimeNs:
+          type: integer
+          format: int64
+        bestExecutionTimeNs:
+          type: integer
+          format: int64
+        averageTreeHeight:
+          type: number
+          format: double
+        averageInsertTimeNs:
+          type: integer
+          format: int64
+        averageSearchTimeNs:
+          type: integer
+          format: int64
+        averageDeleteTimeNs:
+          type: integer
+          format: int64
+
+    BenchmarkSummaryResponse:
+      type: object
+      required: [totalRuns, totalOperations, averageExecutionTimeNs, bestExecutionTimeNs, trees]
+      properties:
+        totalRuns:
+          type: integer
+          format: int64
+        totalOperations:
+          type: integer
+          format: int64
+        averageExecutionTimeNs:
+          type: integer
+          format: int64
+        bestExecutionTimeNs:
+          type: integer
+          format: int64
+        trees:
+          type: array
+          items:
+            $ref: '#/components/schemas/BenchmarkTreeSummaryResponse'
+
     TreeOperationType:
       type: string
       enum: [INSERT, DELETE, SEARCH]
+
+    PlaygroundTreeType:
+      type: string
+      enum: [avl, red-black, splay]
 
     AvlOperationRequest:
       type: object
@@ -57,6 +143,46 @@ components:
         key:
           type: integer
           format: int32
+
+    PlaygroundTreeNode:
+      type: object
+      required: [key]
+      properties:
+        key:
+          type: integer
+          format: int32
+        color:
+          type: string
+          nullable: true
+          enum: [RED, BLACK]
+        height:
+          type: integer
+          format: int32
+          nullable: true
+        left:
+          allOf:
+            - $ref: '#/components/schemas/PlaygroundTreeNode'
+          nullable: true
+        right:
+          allOf:
+            - $ref: '#/components/schemas/PlaygroundTreeNode'
+          nullable: true
+
+    PlaygroundOperationRequest:
+      type: object
+      required: [treeType, operation, key]
+      properties:
+        treeType:
+          $ref: '#/components/schemas/PlaygroundTreeType'
+        operation:
+          $ref: '#/components/schemas/TreeOperationType'
+        key:
+          type: integer
+          format: int32
+        root:
+          allOf:
+            - $ref: '#/components/schemas/PlaygroundTreeNode'
+          nullable: true
 
     TreeStepEvent:
       type: object
@@ -113,3 +239,38 @@ components:
             $ref: '#/components/schemas/TreeStepEvent'
         metrics:
           $ref: '#/components/schemas/TreeMetrics'
+
+    PlaygroundTreeSnapshot:
+      type: object
+      required: [treeType]
+      properties:
+        treeType:
+          $ref: '#/components/schemas/PlaygroundTreeType'
+        root:
+          allOf:
+            - $ref: '#/components/schemas/PlaygroundTreeNode'
+          nullable: true
+
+    PlaygroundOperationResponse:
+      type: object
+      required: [treeType, operation, inputKey, found, changed, steps, metrics, snapshot]
+      properties:
+        treeType:
+          $ref: '#/components/schemas/PlaygroundTreeType'
+        operation:
+          $ref: '#/components/schemas/TreeOperationType'
+        inputKey:
+          type: integer
+          format: int32
+        found:
+          type: boolean
+        changed:
+          type: boolean
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/TreeStepEvent'
+        metrics:
+          $ref: '#/components/schemas/TreeMetrics'
+        snapshot:
+          $ref: '#/components/schemas/PlaygroundTreeSnapshot'

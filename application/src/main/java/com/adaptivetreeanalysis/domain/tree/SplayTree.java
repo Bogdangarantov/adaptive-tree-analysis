@@ -21,6 +21,12 @@ public class SplayTree implements IntTree {
     private Node root;
     private int rotationCount;
 
+    public static SplayTree fromSnapshot(TreeStructureNode snapshot) {
+        SplayTree tree = new SplayTree();
+        tree.root = restore(snapshot);
+        return tree;
+    }
+
     @Override
     public void insert(int key) {
         if (root == null) {
@@ -172,10 +178,39 @@ public class SplayTree implements IntTree {
         return stats.count == 0 ? 0.0 : (double) stats.sum / stats.count;
     }
 
+    @Override
+    public TreeStructureNode snapshot() {
+        return snapshot(root);
+    }
+
     private static final class DepthStats {
         long sum;
         int count;
         int maxDepth;
+    }
+
+    private static Node restore(TreeStructureNode snapshot) {
+        if (snapshot == null) {
+            return null;
+        }
+
+        Node node = new Node(snapshot.key());
+        node.left = restore(snapshot.left());
+        node.right = restore(snapshot.right());
+        return node;
+    }
+
+    private static TreeStructureNode snapshot(Node node) {
+        if (node == null) {
+            return null;
+        }
+        return new TreeStructureNode(
+                node.key,
+                null,
+                null,
+                snapshot(node.left),
+                snapshot(node.right)
+        );
     }
 
     private DepthStats analyzeTree() {

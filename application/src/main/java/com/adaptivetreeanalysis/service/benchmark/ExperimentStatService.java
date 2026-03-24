@@ -34,6 +34,9 @@ public class ExperimentStatService {
         entity.setTreeType(parseTreeType(request.treeType()));
         entity.setAlgorithmVersion(request.algorithmVersion());
         entity.setExecutionTimeNs(request.executionTimeNs());
+        entity.setInsertTimeNs(request.insertTimeNs());
+        entity.setSearchTimeNs(request.searchTimeNs());
+        entity.setDeleteTimeNs(request.deleteTimeNs());
         entity.setOperationCount(request.operationCount());
         entity.setRotationCount(request.rotationCount());
         entity.setTreeHeight(request.treeHeight());
@@ -77,6 +80,9 @@ public class ExperimentStatService {
                 entity.getTreeType().value(),
                 entity.getAlgorithmVersion(),
                 entity.getExecutionTimeNs(),
+                entity.getInsertTimeNs(),
+                entity.getSearchTimeNs(),
+                entity.getDeleteTimeNs(),
                 entity.getOperationCount(),
                 entity.getRotationCount(),
                 entity.getTreeHeight(),

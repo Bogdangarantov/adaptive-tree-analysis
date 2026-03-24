@@ -104,6 +104,134 @@
           Experiment ID: <code>{{ result.experiment.id }}</code>
         </p>
 
+        <section class="chart-panel">
+          <div class="chart-panel-header">
+            <div>
+              <h3>Порівняльний графік</h3>
+              <p class="hint">Швидко показує, яке дерево виглядає краще по вибраній метриці.</p>
+            </div>
+
+            <div class="metric-switcher">
+              <button
+                v-for="option in metricOptions"
+                :key="option.key"
+                type="button"
+                class="metric-btn"
+                :class="{ active: selectedMetric === option.key }"
+                @click="selectedMetric = option.key"
+              >
+                {{ option.label }}
+              </button>
+            </div>
+          </div>
+
+          <div class="chart-summary" v-if="chartLeader">
+            <div class="summary-pill">
+              <span>Лідер</span>
+              <strong>{{ chartLeader.treeType }}</strong>
+            </div>
+            <div class="summary-pill">
+              <span>Метрика</span>
+              <strong>{{ activeMetricLabel }}</strong>
+            </div>
+            <div class="summary-pill">
+              <span>Значення</span>
+              <strong>{{ formatMetricValue(chartLeader.value, selectedMetric) }}</strong>
+            </div>
+          </div>
+
+          <svg
+            class="comparison-chart"
+            viewBox="0 0 760 320"
+            role="img"
+            :aria-label="`Benchmark comparison chart for ${activeMetricLabel}`"
+          >
+            <line x1="72" y1="24" x2="72" y2="264" class="chart-axis" />
+            <line x1="72" y1="264" x2="724" y2="264" class="chart-axis" />
+
+            <g v-for="tick in chartTicks" :key="`tick-${tick.value}`">
+              <line
+                x1="72"
+                :y1="tick.y"
+                x2="724"
+                :y2="tick.y"
+                class="chart-grid"
+              />
+              <text x="62" :y="tick.y + 4" class="chart-tick">
+                {{ formatMetricValue(tick.value, selectedMetric) }}
+              </text>
+            </g>
+
+            <g v-for="bar in chartBars" :key="bar.treeType">
+              <rect
+                :x="bar.x"
+                :y="bar.y"
+                :width="bar.width"
+                :height="bar.height"
+                rx="16"
+                class="chart-bar"
+                :style="{ '--bar-color': bar.color }"
+              />
+              <text :x="bar.x + bar.width / 2" y="288" class="chart-label">
+                {{ bar.treeType }}
+              </text>
+              <text :x="bar.x + bar.width / 2" :y="Math.max(18, bar.y - 10)" class="chart-value">
+                {{ formatMetricValue(bar.value, selectedMetric) }}
+              </text>
+            </g>
+          </svg>
+        </section>
+
+        <section class="chart-panel">
+          <div class="chart-panel-header">
+            <div>
+              <h3>Операційний breakdown</h3>
+              <p class="hint">Окремі часи вставки, пошуку та видалення для кожного дерева.</p>
+            </div>
+          </div>
+
+          <div class="breakdown-grid">
+            <article
+              v-for="operationChart in operationCharts"
+              :key="operationChart.key"
+              class="breakdown-card"
+            >
+              <div class="breakdown-head">
+                <h4>{{ operationChart.label }}</h4>
+                <span>{{ operationChart.leader }}</span>
+              </div>
+
+              <svg
+                class="operation-chart"
+                viewBox="0 0 320 220"
+                role="img"
+                :aria-label="`${operationChart.label} benchmark comparison`"
+              >
+                <line x1="42" y1="20" x2="42" y2="176" class="chart-axis" />
+                <line x1="42" y1="176" x2="298" y2="176" class="chart-axis" />
+
+                <g v-for="bar in operationChart.bars" :key="`${operationChart.key}-${bar.treeType}`">
+                  <rect
+                    :x="bar.x"
+                    :y="bar.y"
+                    :width="bar.width"
+                    :height="bar.height"
+                    rx="12"
+                    class="chart-bar"
+                    :style="{ '--bar-color': bar.color }"
+                  />
+                  <text :x="bar.x + bar.width / 2" y="196" class="chart-label">
+                    {{ bar.treeType }}
+                  </text>
+                  <text :x="bar.x + bar.width / 2" :y="Math.max(16, bar.y - 8)" class="chart-value">
+                    {{ formatMetricValue(bar.value, 'executionTimeNs') }}
+                  </text>
+                </g>
+              </svg>
+            </article>
+          </div>
+        </section>
+
         <table class="results-table">
           <thead>
             <tr>
@@ -131,11 +259,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { Client } from '@stomp/stompjs';
 import GeneratedNavbar from '../components/generated/GeneratedNavbar.vue';
 import type { BenchmarkQuickRunResponse } from '../api/client';
 import { runBenchmarkQuick } from '../api/client';
+
+type BenchmarkMetricKey = 'executionTimeNs' | 'rotationCount' | 'treeHeight' | 'avgNodeDepth';
+type OperationTimeMetricKey = 'insertTimeNs' | 'searchTimeNs' | 'deleteTimeNs';
 
 const datasetSize = ref(10000);
 const distributionType = ref('RANDOM');
@@ -147,6 +278,7 @@ const repeatCount = ref(1);
 const loading = ref(false);
 const error = ref<string | null>(null);
 const result = ref<BenchmarkQuickRunResponse | null>(null);
+const selectedMetric = ref<BenchmarkMetricKey>('executionTimeNs');
 
 const elapsedMs = ref(0);
 const progress = ref<{ done: number; total: number } | null>(null);
@@ -159,9 +291,112 @@ const progressPercent = computed(() => {
   return (progress.value.done / progress.value.total) * 100;
 });
 
+const metricOptions: Array<{ key: BenchmarkMetricKey; label: string }> = [
+  { key: 'executionTimeNs', label: 'Time' },
+  { key: 'rotationCount', label: 'Rotations' },
+  { key: 'treeHeight', label: 'Height' },
+  { key: 'avgNodeDepth', label: 'Avg depth' }
+];
+
+const activeMetricLabel = computed(() => {
+  return metricOptions.find((option) => option.key === selectedMetric.value)?.label ?? 'Metric';
+});
+
+const chartStats = computed(() => result.value?.stats ?? []);
+
+const chartMaxValue = computed(() => {
+  const maxValue = Math.max(...chartStats.value.map((row) => metricValue(row, selectedMetric.value)), 0);
+  return maxValue > 0 ? maxValue : 1;
+});
+
+const chartLeader = computed(() => {
+  if (chartStats.value.length === 0) {
+    return null;
+  }
+
+  return [...chartStats.value]
+    .map((row) => ({
+      treeType: normalizeTreeType(row.treeType),
+      value: metricValue(row, selectedMetric.value)
+    }))
+    .sort((left, right) => left.value - right.value)[0];
+});
+
+const chartTicks = computed(() => {
+  const ticks = [];
+  for (let index = 0; index < 5; index += 1) {
+    const ratio = index / 4;
+    ticks.push({
+      value: chartMaxValue.value * (1 - ratio),
+      y: 24 + 240 * ratio
+    });
+  }
+  return ticks;
+});
+
+const chartBars = computed(() => {
+  const colors = ['#38bdf8', '#f87171', '#f59e0b'];
+  const width = 132;
+  const gap = 72;
+  const startX = 122;
+
+  return chartStats.value.map((row, index) => {
+    const value = metricValue(row, selectedMetric.value);
+    const height = Math.max(8, (value / chartMaxValue.value) * 208);
+    return {
+      treeType: normalizeTreeType(row.treeType),
+      value,
+      x: startX + index * (width + gap),
+      y: 264 - height,
+      width,
+      height,
+      color: colors[index % colors.length]
+    };
+  });
+});
+
+const operationCharts = computed(() => {
+  const chartConfigs: Array<{ key: OperationTimeMetricKey; label: string }> = [
+    { key: 'insertTimeNs', label: 'Insert time' },
+    { key: 'searchTimeNs', label: 'Search time' },
+    { key: 'deleteTimeNs', label: 'Delete time' }
+  ];
+  const colors = ['#38bdf8', '#f87171', '#f59e0b'];
+
+  return chartConfigs.map((config) => {
+    const values = chartStats.value.map((row) => operationMetricValue(row, config.key));
+    const maxValue = Math.max(...values, 0, 1);
+    const ranked = chartStats.value
+      .map((row) => ({
+        treeType: normalizeTreeType(row.treeType),
+        value: operationMetricValue(row, config.key)
+      }))
+      .sort((left, right) => left.value - right.value);
+
+    return {
+      key: config.key,
+      label: config.label,
+      leader: ranked[0] ? `${ranked[0].treeType}: ${formatMetricValue(ranked[0].value, 'executionTimeNs')}` : 'No data',
+      bars: chartStats.value.map((row, index) => {
+        const value = operationMetricValue(row, config.key);
+        const height = Math.max(8, (value / maxValue) * 126);
+        return {
+          treeType: normalizeTreeType(row.treeType),
+          value,
+          x: 62 + index * 82,
+          y: 176 - height,
+          width: 54,
+          height,
+          color: colors[index % colors.length]
+        };
+      })
+    };
+  });
+});
+
 let timer: number | null = null;
 let stompClient: Client | null = null;
-let progressSocketPromise: Promise<void> | null = null;
+let isProgressSubscribed = false;
 
 watch(loading, (isLoading) => {
   if (isLoading) {
@@ -178,6 +413,10 @@ watch(loading, (isLoading) => {
       timer = null;
     }
   }
+});
+
+onMounted(() => {
+  ensureProgressSocket();
 });
 
 onUnmounted(() => {
@@ -197,8 +436,6 @@ async function runBenchmark() {
   currentExperimentId.value = null;
 
   try {
-    await ensureProgressSocket();
-
     const payload = {
       datasetSize: datasetSize.value,
       distributionType: distributionType.value,
@@ -221,27 +458,59 @@ function formatNsToMs(ns: number): string {
   return (ns / 1_000_000).toFixed(2);
 }
 
-function ensureProgressSocket(): Promise<void> {
-  if (stompClient?.connected) {
-    return Promise.resolve();
+function metricValue(row: BenchmarkQuickRunResponse['stats'][number], metric: BenchmarkMetricKey): number {
+  if (metric === 'avgNodeDepth') {
+    return row.avgNodeDepth ?? 0;
+  }
+  return row[metric] ?? 0;
+}
+
+function formatMetricValue(value: number, metric: BenchmarkMetricKey): string {
+  if (metric === 'executionTimeNs') {
+    return `${formatNsToMs(value)} ms`;
+  }
+  if (metric === 'avgNodeDepth') {
+    return value.toFixed(2);
+  }
+  return value.toLocaleString();
+}
+
+function operationMetricValue(
+  row: BenchmarkQuickRunResponse['stats'][number],
+  metric: OperationTimeMetricKey
+): number {
+  return row[metric] ?? 0;
+}
+
+function normalizeTreeType(treeType: string): string {
+  return ({
+    avl: 'AVL',
+    'red-black': 'Red-Black',
+    splay: 'Splay'
+  }[treeType] ?? treeType);
+}
+
+function ensureProgressSocket(): void {
+  if (stompClient?.active || stompClient?.connected) {
+    return;
   }
 
-  if (progressSocketPromise) {
-    return progressSocketPromise;
-  }
+  const websocketUrl = import.meta.env.DEV
+    ? `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}:8080/ws`
+    : `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`;
 
-  progressSocketPromise = new Promise((resolve) => {
-    let isResolved = false;
-    const finish = () => {
-      if (isResolved) {
-        return;
-      }
-      isResolved = true;
-      progressSocketPromise = null;
-      resolve();
-    };
+  stompClient = new Client({
+    brokerURL: websocketUrl,
+    reconnectDelay: 3000,
+    connectionTimeout: 5000
+  });
 
-    const subscriptionHandler = (message: { body: string }) => {
+  stompClient.onConnect = () => {
+    if (isProgressSubscribed) {
+      return;
+    }
+
+    stompClient!.subscribe(`/topic/benchmark-progress`, (message) => {
       const body = JSON.parse(message.body) as {
         experimentId: string;
         doneOperations: number;
@@ -260,31 +529,16 @@ function ensureProgressSocket(): Promise<void> {
         done: body.doneOperations,
         total: body.totalOperations
       };
-    };
+    });
 
-    if (!stompClient) {
-      stompClient = new Client({
-        brokerURL: `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`,
-        reconnectDelay: 3000,
-        connectionTimeout: 1500
-      });
-    }
+    isProgressSubscribed = true;
+  };
 
-    stompClient.onConnect = () => {
-      stompClient!.subscribe(`/topic/benchmark-progress`, subscriptionHandler);
-      finish();
-    };
+  stompClient.onWebSocketClose = () => {
+    isProgressSubscribed = false;
+  };
 
-    stompClient.onStompError = finish;
-    stompClient.onWebSocketError = finish;
-    window.setTimeout(finish, 1500);
-
-    if (!stompClient.active) {
-      stompClient.activate();
-    }
-  });
-
-  return progressSocketPromise;
+  stompClient.activate();
 }
 </script>
 
@@ -404,6 +658,156 @@ function ensureProgressSocket(): Promise<void> {
   margin-bottom: 8px;
 }
 
+.chart-panel {
+  margin: 18px 0 22px;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.chart-panel-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 14px;
+}
+
+.chart-panel h3 {
+  margin: 0 0 4px;
+}
+
+.metric-switcher {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: end;
+}
+
+.metric-btn {
+  border: 1px solid #334155;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #cbd5e1;
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.metric-btn.active {
+  background: #1d4ed8;
+  color: #ffffff;
+  border-color: #1d4ed8;
+}
+
+.chart-summary {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.summary-pill {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.summary-pill span {
+  font-size: 11px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.summary-pill strong {
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.comparison-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.breakdown-card {
+  border-radius: 16px;
+  background: rgba(2, 8, 23, 0.3);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  padding: 14px;
+}
+
+.breakdown-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+  margin-bottom: 10px;
+}
+
+.breakdown-head h4 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.breakdown-head span {
+  color: #94a3b8;
+  font-size: 12px;
+  text-align: right;
+}
+
+.operation-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.chart-axis {
+  stroke: rgba(148, 163, 184, 0.65);
+  stroke-width: 1.5;
+}
+
+.chart-grid {
+  stroke: rgba(148, 163, 184, 0.15);
+  stroke-width: 1;
+}
+
+.chart-tick {
+  fill: #94a3b8;
+  font-size: 11px;
+  text-anchor: end;
+}
+
+.chart-bar {
+  fill: var(--bar-color);
+  opacity: 0.92;
+}
+
+.chart-label {
+  fill: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+
+.chart-value {
+  fill: #e2e8f0;
+  font-size: 12px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+
 .progress-wrapper {
   margin-top: 12px;
 }
@@ -459,6 +863,18 @@ code {
 
 @media (max-width: 900px) {
   .benchmark-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-panel-header {
+    flex-direction: column;
+  }
+
+  .metric-switcher {
+    justify-content: start;
+  }
+
+  .breakdown-grid {
     grid-template-columns: 1fr;
   }
 }

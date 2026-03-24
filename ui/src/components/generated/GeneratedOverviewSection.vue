@@ -1,9 +1,11 @@
 <template>
   <section class="section overview-section" id="overview">
     <div class="container">
-      <h2 class="section-title fade-in">What is Adaptive Tree Analysis?</h2>
+      <h2 class="section-title fade-in">Що таке адаптивний аналіз дерев?</h2>
       <p class="section-description fade-in">
-        Adaptive self-balancing trees such as AVL, Red-Black and extensible trees dynamically maintain structure to ensure optimal performance across operations. This analysis focuses on comparing these adaptive search trees.
+        Самобалансувальні дерева, такі як AVL, Red-Black і Splay, динамічно підтримують структуру, щоб
+        забезпечити стабільну продуктивність для основних операцій. Ця платформа зосереджена на порівнянні
+        цих структур пошуку, їхніх властивостей і практичної поведінки.
       </p>
 
       <div class="cards-grid">

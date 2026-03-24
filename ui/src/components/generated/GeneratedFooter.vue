@@ -8,7 +8,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2024 Adaptive Tree Analysis. Built for educational purposes.</p>
+        <p>&copy; 2026 Adaptive Tree Analysis. Створено для навчальних цілей.</p>
       </div>
     </div>
   </footer>

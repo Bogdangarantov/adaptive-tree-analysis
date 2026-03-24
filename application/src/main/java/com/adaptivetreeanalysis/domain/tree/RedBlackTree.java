@@ -27,6 +27,15 @@ public class RedBlackTree implements IntTree {
     private Node root;
     private int rotationCount;
 
+    public static RedBlackTree fromSnapshot(TreeStructureNode snapshot) {
+        RedBlackTree tree = new RedBlackTree();
+        tree.root = restore(snapshot, null);
+        if (tree.root != null) {
+            tree.root.color = BLACK;
+        }
+        return tree;
+    }
+
     @Override
     public void insert(int key) {
         Node z = new Node(key);
@@ -375,10 +384,48 @@ public class RedBlackTree implements IntTree {
         return stats.count == 0 ? 0.0 : (double) stats.sum / stats.count;
     }
 
+    @Override
+    public TreeStructureNode snapshot() {
+        return snapshot(root);
+    }
+
     private static final class DepthStats {
         long sum;
         int count;
         int maxDepth;
+    }
+
+    private static Node restore(TreeStructureNode snapshot, Node parent) {
+        if (snapshot == null) {
+            return null;
+        }
+
+        Node node = new Node(snapshot.key());
+        node.parent = parent;
+        node.color = parseColor(snapshot.color());
+        node.left = restore(snapshot.left(), node);
+        node.right = restore(snapshot.right(), node);
+        return node;
+    }
+
+    private static boolean parseColor(String color) {
+        if (color == null) {
+            return BLACK;
+        }
+        return "RED".equalsIgnoreCase(color) ? RED : BLACK;
+    }
+
+    private static TreeStructureNode snapshot(Node node) {
+        if (node == null) {
+            return null;
+        }
+        return new TreeStructureNode(
+                node.key,
+                node.color == RED ? "RED" : "BLACK",
+                null,
+                snapshot(node.left),
+                snapshot(node.right)
+        );
     }
 
     private DepthStats analyzeTree() {

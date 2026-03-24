@@ -2,8 +2,11 @@ package com.adaptivetreeanalysis.controller.benchmark;
 
 import com.adaptivetreeanalysis.dto.benchmark.BenchmarkQuickRunRequest;
 import com.adaptivetreeanalysis.dto.benchmark.BenchmarkQuickRunResponse;
+import com.adaptivetreeanalysis.dto.benchmark.BenchmarkSummaryResponse;
 import com.adaptivetreeanalysis.service.benchmark.BenchmarkQuickRunService;
+import com.adaptivetreeanalysis.service.benchmark.BenchmarkSummaryService;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,9 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class BenchmarkController {
 
     private final BenchmarkQuickRunService benchmarkQuickRunService;
+    private final BenchmarkSummaryService benchmarkSummaryService;
 
-    public BenchmarkController(BenchmarkQuickRunService benchmarkQuickRunService) {
+    public BenchmarkController(
+            BenchmarkQuickRunService benchmarkQuickRunService,
+            BenchmarkSummaryService benchmarkSummaryService
+    ) {
         this.benchmarkQuickRunService = benchmarkQuickRunService;
+        this.benchmarkSummaryService = benchmarkSummaryService;
     }
 
     /**
@@ -27,5 +35,9 @@ public class BenchmarkController {
     public BenchmarkQuickRunResponse quickRun(@Valid @RequestBody BenchmarkQuickRunRequest request) {
         return benchmarkQuickRunService.run(request);
     }
-}
 
+    @GetMapping("/summary")
+    public BenchmarkSummaryResponse summary() {
+        return benchmarkSummaryService.getSummary();
+    }
+}
