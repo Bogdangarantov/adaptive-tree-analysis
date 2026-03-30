@@ -6,10 +6,10 @@
       <section class="playground-hero">
         <div>
           <p class="eyebrow">Stateless Playground</p>
-          <h1>Пісочниця для AVL, Red-Black і Splay дерев</h1>
+          <h1>Інтерактивний аналіз дерев</h1>
           <p class="hero-copy">
-            Додавай окремі дерева на сцену, рухай їх як картки й тестуй вставку, пошук та видалення без
-            збереження в базу. Кожна дія надсилає на backend поточний snapshot дерева та одне число.
+            Локальне середовище для перевірки операцій `insert`, `search` і `delete` для AVL, Red-Black та
+            Splay дерев через backend snapshots.
           </p>
         </div>
 
@@ -694,16 +694,16 @@ function clampZoom(value: number): number {
 
 .playground-hero h1 {
   margin: 0;
-  font-size: clamp(32px, 4vw, 52px);
-  line-height: 1;
+  font-size: clamp(26px, 3vw, 40px);
+  line-height: 1.05;
 }
 
 .hero-copy {
-  max-width: 760px;
+  max-width: 680px;
   margin: 12px 0 0;
   color: #cbd5e1;
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .spawn-panel {
