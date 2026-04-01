@@ -77,6 +77,13 @@ jobs:
           ssh "${VPS_USER}@${VPS_HOST}" "
             set -eu
             mkdir -p '${VPS_APP_DIR}'
+            rm -rf \
+              '${VPS_APP_DIR}/application' \
+              '${VPS_APP_DIR}/backend-ui-dto' \
+              '${VPS_APP_DIR}/deploy' \
+              '${VPS_APP_DIR}/ui' \
+              '${VPS_APP_DIR}/docker-compose.prod.yml' \
+              '${VPS_APP_DIR}/.env.prod.example'
             tar -xzf '${VPS_APP_DIR}/release.tgz' -C '${VPS_APP_DIR}'
             printf 'APP_DOMAIN=%s\nDB_PASSWORD=%s\n' '${APP_DOMAIN}' '${DB_PASSWORD}' > '${VPS_APP_DIR}/.env.prod'
             cd '${VPS_APP_DIR}'
