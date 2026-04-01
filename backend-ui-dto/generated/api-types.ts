@@ -36,6 +36,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/benchmark/height-growth": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBenchmarkHeightGrowth"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/trees/avl/operations": {
         parameters: {
             query?: never;
@@ -105,6 +121,23 @@ export interface components {
             /** Format: int64 */
             bestExecutionTimeNs: number;
             trees: components["schemas"]["BenchmarkTreeSummaryResponse"][];
+        };
+        BenchmarkHeightGrowthPointResponse: {
+            /** Format: int32 */
+            datasetSize: number;
+            /** Format: double */
+            averageTreeHeight: number;
+            /** Format: int64 */
+            runCount: number;
+        };
+        BenchmarkHeightGrowthSeriesResponse: {
+            treeType: string;
+            points: components["schemas"]["BenchmarkHeightGrowthPointResponse"][];
+        };
+        BenchmarkHeightGrowthResponse: {
+            /** Format: int64 */
+            totalRuns: number;
+            series: components["schemas"]["BenchmarkHeightGrowthSeriesResponse"][];
         };
         /** @enum {string} */
         TreeOperationType: "INSERT" | "DELETE" | "SEARCH";
@@ -219,6 +252,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BenchmarkSummaryResponse"];
+                };
+            };
+        };
+    };
+    getBenchmarkHeightGrowth: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Real benchmark series for tree height growth by dataset size */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BenchmarkHeightGrowthResponse"];
                 };
             };
         };
