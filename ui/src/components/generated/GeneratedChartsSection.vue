@@ -247,12 +247,26 @@ const maxOperationTime = computed(() => {
 
 onMounted(async () => {
   try {
-    const [summaryResponse, heightGrowthResponse] = await Promise.all([
+    const [summaryResult, heightGrowthResult] = await Promise.allSettled([
       getBenchmarkSummary(),
       getBenchmarkHeightGrowth()
     ]);
-    summary.value = summaryResponse;
-    heightGrowth.value = heightGrowthResponse;
+
+    if (summaryResult.status === 'fulfilled') {
+      summary.value = summaryResult.value;
+    } else {
+      throw summaryResult.reason;
+    }
+
+    if (heightGrowthResult.status === 'fulfilled') {
+      heightGrowth.value = heightGrowthResult.value;
+    } else {
+      console.warn('Height growth benchmark data is unavailable.', heightGrowthResult.reason);
+      heightGrowth.value = {
+        totalRuns: 0,
+        series: []
+      };
+    }
   } catch (cause) {
     error.value = cause instanceof Error ? cause.message : 'Не вдалося завантажити benchmark-метрики.';
   } finally {

@@ -2,7 +2,9 @@ package com.adaptivetreeanalysis.controller.benchmark;
 
 import com.adaptivetreeanalysis.dto.benchmark.BenchmarkQuickRunRequest;
 import com.adaptivetreeanalysis.dto.benchmark.BenchmarkQuickRunResponse;
+import com.adaptivetreeanalysis.dto.benchmark.BenchmarkHeightGrowthResponse;
 import com.adaptivetreeanalysis.dto.benchmark.BenchmarkSummaryResponse;
+import com.adaptivetreeanalysis.service.benchmark.BenchmarkHeightGrowthService;
 import com.adaptivetreeanalysis.service.benchmark.BenchmarkQuickRunService;
 import com.adaptivetreeanalysis.service.benchmark.BenchmarkSummaryService;
 import jakarta.validation.Valid;
@@ -18,13 +20,16 @@ public class BenchmarkController {
 
     private final BenchmarkQuickRunService benchmarkQuickRunService;
     private final BenchmarkSummaryService benchmarkSummaryService;
+    private final BenchmarkHeightGrowthService benchmarkHeightGrowthService;
 
     public BenchmarkController(
             BenchmarkQuickRunService benchmarkQuickRunService,
-            BenchmarkSummaryService benchmarkSummaryService
+            BenchmarkSummaryService benchmarkSummaryService,
+            BenchmarkHeightGrowthService benchmarkHeightGrowthService
     ) {
         this.benchmarkQuickRunService = benchmarkQuickRunService;
         this.benchmarkSummaryService = benchmarkSummaryService;
+        this.benchmarkHeightGrowthService = benchmarkHeightGrowthService;
     }
 
     /**
@@ -39,5 +44,10 @@ public class BenchmarkController {
     @GetMapping("/summary")
     public BenchmarkSummaryResponse summary() {
         return benchmarkSummaryService.getSummary();
+    }
+
+    @GetMapping("/height-growth")
+    public BenchmarkHeightGrowthResponse heightGrowth() {
+        return benchmarkHeightGrowthService.getHeightGrowth();
     }
 }

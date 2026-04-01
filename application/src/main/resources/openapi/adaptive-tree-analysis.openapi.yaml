@@ -25,6 +25,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BenchmarkSummaryResponse'
+  /api/v1/benchmark/height-growth:
+    get:
+      operationId: getBenchmarkHeightGrowth
+      responses:
+        '200':
+          description: Real benchmark series for tree height growth by dataset size
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BenchmarkHeightGrowthResponse'
   /api/v1/trees/avl/operations:
     post:
       operationId: executeAvlOperation
@@ -125,6 +135,43 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/BenchmarkTreeSummaryResponse'
+
+    BenchmarkHeightGrowthPointResponse:
+      type: object
+      required: [datasetSize, averageTreeHeight, runCount]
+      properties:
+        datasetSize:
+          type: integer
+          format: int32
+        averageTreeHeight:
+          type: number
+          format: double
+        runCount:
+          type: integer
+          format: int64
+
+    BenchmarkHeightGrowthSeriesResponse:
+      type: object
+      required: [treeType, points]
+      properties:
+        treeType:
+          type: string
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/BenchmarkHeightGrowthPointResponse'
+
+    BenchmarkHeightGrowthResponse:
+      type: object
+      required: [totalRuns, series]
+      properties:
+        totalRuns:
+          type: integer
+          format: int64
+        series:
+          type: array
+          items:
+            $ref: '#/components/schemas/BenchmarkHeightGrowthSeriesResponse'
 
     TreeOperationType:
       type: string
