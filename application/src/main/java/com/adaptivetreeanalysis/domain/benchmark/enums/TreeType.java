@@ -2,7 +2,7 @@ package com.adaptivetreeanalysis.domain.benchmark.enums;
 
 public enum TreeType {
     AVL("avl"),
-    RED_BLACK("red-black"),
+    RED_BLACK("red_black"),
     SPLAY("splay");
 
     private final String value;
@@ -20,12 +20,8 @@ public enum TreeType {
             throw new IllegalArgumentException("treeType must not be null");
         }
 
-        String normalizedValue = value.trim().replace('_', '-');
-
         for (TreeType type : values()) {
-            if (type.value.equalsIgnoreCase(normalizedValue)
-                    || type.name().equalsIgnoreCase(normalizedValue)
-                    || type.name().replace('_', '-').equalsIgnoreCase(normalizedValue)) {
+            if (type.value.equalsIgnoreCase(value) || type.name().equalsIgnoreCase(value)) {
                 return type;
             }
         }

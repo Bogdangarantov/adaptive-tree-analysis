@@ -6,12 +6,6 @@ services:
       POSTGRES_DB: adaptive_tree_analysis
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d adaptive_tree_analysis"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -25,8 +19,7 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: ${DB_PASSWORD}
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     expose:
       - "8080"
 

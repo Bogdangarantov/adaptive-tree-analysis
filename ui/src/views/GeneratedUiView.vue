@@ -1,5 +1,6 @@
 <template>
   <div class="generated-root">
+    <canvas id="particleCanvas"></canvas>
     <GeneratedNavbar />
     <GeneratedHeroSection />
     <GeneratedOverviewSection />
@@ -19,12 +20,14 @@ import GeneratedVisualizationSection from '../components/generated/GeneratedVisu
 import GeneratedChartsSection from '../components/generated/GeneratedChartsSection.vue';
 import GeneratedBenchmarkSummarySection from '../components/generated/GeneratedBenchmarkSummarySection.vue';
 import GeneratedFooter from '../components/generated/GeneratedFooter.vue';
+import { useGeneratedScripts } from '../composables/useGeneratedScripts';
 
 const props = defineProps<{
   targetSection?: string | null;
 }>();
 
 onMounted(async () => {
+  await useGeneratedScripts();
   await scrollToTargetSection(props.targetSection);
 });
 
@@ -54,32 +57,5 @@ async function scrollToTargetSection(targetSection?: string | null): Promise<voi
 <style>
 .generated-root {
   position: relative;
-  overflow: clip;
-}
-
-.generated-root::before,
-.generated-root::after {
-  content: '';
-  position: fixed;
-  inset: auto;
-  pointer-events: none;
-  z-index: 0;
-  filter: blur(60px);
-}
-
-.generated-root::before {
-  top: 120px;
-  left: -80px;
-  width: 280px;
-  height: 280px;
-  background: rgba(0, 212, 255, 0.16);
-}
-
-.generated-root::after {
-  top: 420px;
-  right: -100px;
-  width: 340px;
-  height: 340px;
-  background: rgba(124, 58, 237, 0.12);
 }
 </style>

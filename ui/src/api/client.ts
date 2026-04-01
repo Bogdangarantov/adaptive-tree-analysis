@@ -6,21 +6,6 @@ type AvlOperationResponse = components['schemas']['AvlOperationResponse'];
 export type PlaygroundOperationRequest = components['schemas']['PlaygroundOperationRequest'];
 export type PlaygroundOperationResponse = components['schemas']['PlaygroundOperationResponse'];
 export type BenchmarkSummaryResponse = components['schemas']['BenchmarkSummaryResponse'];
-export interface BenchmarkHeightGrowthPointResponse {
-  datasetSize: number;
-  averageTreeHeight: number;
-  runCount: number;
-}
-
-export interface BenchmarkHeightGrowthSeriesResponse {
-  treeType: string;
-  points: BenchmarkHeightGrowthPointResponse[];
-}
-
-export interface BenchmarkHeightGrowthResponse {
-  totalRuns: number;
-  series: BenchmarkHeightGrowthSeriesResponse[];
-}
 
 const API_BASE = '/api/v1';
 
@@ -109,14 +94,6 @@ export async function getBenchmarkSummary(): Promise<BenchmarkSummaryResponse> {
   const response = await fetch(`${API_BASE}/benchmark/summary`);
   if (!response.ok) {
     throw new Error(`Benchmark summary request failed with status ${response.status}`);
-  }
-  return response.json();
-}
-
-export async function getBenchmarkHeightGrowth(): Promise<BenchmarkHeightGrowthResponse> {
-  const response = await fetch(`${API_BASE}/benchmark/height-growth`);
-  if (!response.ok) {
-    throw new Error(`Benchmark height-growth request failed with status ${response.status}`);
   }
   return response.json();
 }
