@@ -35,7 +35,6 @@
 
         <div class="chart-card glass-card fade-in">
           <h3><i class="fas fa-chart-line"></i> Зростання висоти дерева</h3>
-          <p class="chart-note">Графік будується з реальних benchmark-результатів, збережених на backend.</p>
           <div class="svg-chart-shell">
             <svg viewBox="0 0 640 320" class="svg-chart" aria-label="Average tree height by dataset size">
               <line x1="70" y1="24" x2="70" y2="266" class="chart-axis-line" />
