@@ -288,9 +288,9 @@ html {
 
 /* ===== FADE IN ANIMATIONS ===== */
 .fade-in {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
+    opacity: 1;
+    transform: translateY(0);
+    animation: fadeInUp 0.8s ease both;
 }
 
 .fade-in.visible {
