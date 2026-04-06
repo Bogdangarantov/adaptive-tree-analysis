@@ -60,5 +60,5 @@
 </template>
 
 <script setup lang="ts">
-import { complexityRows } from '../../constants/generatedContent';
+import { complexityRows } from '../../constants/landingContent';
 </script>
