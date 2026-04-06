@@ -27,5 +27,5 @@
 </template>
 
 <script setup lang="ts">
-import { overviewCards } from '../../constants/generatedContent';
+import { overviewCards } from '../../constants/landingContent';
 </script>

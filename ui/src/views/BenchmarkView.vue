@@ -1,6 +1,6 @@
 <template>
   <div class="benchmark-root">
-    <GeneratedNavbar />
+    <Navbar />
 
     <main class="benchmark-page">
       <section class="benchmark-hero">
@@ -358,7 +358,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { Client } from '@stomp/stompjs';
-import GeneratedNavbar from '../components/generated/GeneratedNavbar.vue';
+import Navbar from '../components/landing/Navbar.vue';
 import type { BenchmarkQuickRunResponse } from '../api/client';
 import { runBenchmarkQuick } from '../api/client';
 

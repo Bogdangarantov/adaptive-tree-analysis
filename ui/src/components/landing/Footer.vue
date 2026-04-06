@@ -15,5 +15,5 @@
 </template>
 
 <script setup lang="ts">
-import { footerBlocks } from '../../constants/generatedContent';
+import { footerBlocks } from '../../constants/landingContent';
 </script>

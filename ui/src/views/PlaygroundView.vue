@@ -1,6 +1,6 @@
 <template>
   <div class="playground-root">
-    <GeneratedNavbar />
+    <Navbar />
 
     <main class="playground-page">
       <section class="playground-hero">
@@ -167,7 +167,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, reactive, ref } from 'vue';
 import type { components } from '@dto/api-types';
-import GeneratedNavbar from '../components/generated/GeneratedNavbar.vue';
+import Navbar from '../components/landing/Navbar.vue';
 import {
   runPlaygroundOperation,
   type PlaygroundOperationRequest,
