@@ -206,24 +206,6 @@ document.querySelectorAll('.stat-card').forEach(stat => {
     statsObserver.observe(stat);
 });
 
-// Prevent accidental navigation away
-let userInteracted = false;
-
-document.addEventListener('input', () => {
-    userInteracted = true;
-});
-
-window.addEventListener('beforeunload', (e) => {
-    if (userInteracted && (
-        document.getElementById('nodeValue').value ||
-        document.getElementById('searchValue').value ||
-        document.getElementById('deleteValue').value
-    )) {
-        e.preventDefault();
-        e.returnValue = '';
-    }
-});
-
 // Initialize all components
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
@@ -232,10 +214,3 @@ if (document.readyState === 'loading') {
 } else {
     console.log('✅ All components initialized successfully');
 }
-
-// Export functions for HTML onclick handlers
-window.scrollToSection = scrollToSection;
-window.insertNode = insertNode;
-window.searchNode = searchNode;
-window.deleteNode = deleteNode;
-window.resetTree = resetTree;
