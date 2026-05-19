@@ -3,7 +3,6 @@ export async function useLandingScripts(): Promise<void> {
   await appendScript('landing-particles', '/generated/js/particles.js');
   await appendScript('landing-trees', '/generated/js/trees.js');
   await appendScript('landing-charts', '/generated/js/charts.js');
-  await appendScript('landing-demo', '/generated/js/demo.js');
   await appendScript('landing-main', '/generated/js/main.js');
 }
 
