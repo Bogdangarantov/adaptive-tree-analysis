@@ -1,36 +1,38 @@
 // Chart.js Configuration and Setup
 
-// Bar Chart - Operation Time Complexity
-function createComplexityChart() {
-    const ctx = document.getElementById('complexityChart').getContext('2d');
-    
+function formatNanos(value) {
+    if (value === null || value === undefined || Number.isNaN(Number(value))) {
+        return '—';
+    }
+    const ns = Number(value);
+    if (ns >= 1_000_000) {
+        return `${(ns / 1_000_000).toFixed(2)} мс`;
+    }
+    if (ns >= 1_000) {
+        return `${(ns / 1_000).toFixed(2)} мкс`;
+    }
+    return `${ns.toFixed(0)} нс`;
+}
+
+// Bar Chart - Average operation time per tree type
+async function createComplexityChart() {
+    const canvas = document.getElementById('complexityChart');
+    if (!canvas) {
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    const realData = await loadOperationTimesData();
+    const chartData = realData ?? {
+        labels: [],
+        datasets: []
+    };
+
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Search', 'Insert', 'Delete'],
-            datasets: [
-                {
-                    label: 'AVL Tree',
-                    data: [3, 4, 4], // O(log n) - slightly more balanced
-                    backgroundColor: 'rgba(16, 185, 129, 0.6)',
-                    borderColor: '#10b981',
-                    borderWidth: 2
-                },
-                {
-                    label: 'Red-Black Tree',
-                    data: [3.5, 3.5, 3.5], // O(log n) - balanced
-                    backgroundColor: 'rgba(0, 212, 255, 0.6)',
-                    borderColor: '#00d4ff',
-                    borderWidth: 2
-                },
-                {
-                    label: 'Extensible Tree',
-                    data: [3.2, 3.2, 3.2], // O(log n) - very efficient
-                    backgroundColor: 'rgba(124, 58, 237, 0.6)',
-                    borderColor: '#7c3aed',
-                    borderWidth: 2
-                }
-            ]
+            labels: chartData.labels,
+            datasets: chartData.datasets
         },
         options: {
             responsive: true,
@@ -49,7 +51,13 @@ function createComplexityChart() {
                     }
                 },
                 title: {
-                    display: false
+                    display: !chartData.datasets.length,
+                    text: 'Немає benchmark-даних для часу операцій',
+                    color: '#94a3b8',
+                    font: {
+                        family: 'Inter',
+                        size: 13
+                    }
                 },
                 tooltip: {
                     backgroundColor: 'rgba(10, 14, 26, 0.95)',
@@ -58,7 +66,12 @@ function createComplexityChart() {
                     borderColor: 'rgba(0, 212, 255, 0.3)',
                     borderWidth: 1,
                     padding: 12,
-                    displayColors: true
+                    displayColors: true,
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${formatNanos(context.parsed.y)}`;
+                        }
+                    }
                 }
             },
             scales: {
@@ -75,9 +88,7 @@ function createComplexityChart() {
                             size: 11
                         },
                         callback: function(value) {
-                            if (value === 10) return 'O(n)';
-                            if (value >= 3 && value <= 4) return 'O(log n)';
-                            return '';
+                            return formatNanos(value);
                         }
                     }
                 },
@@ -97,6 +108,70 @@ function createComplexityChart() {
             }
         }
     });
+}
+
+async function loadOperationTimesData() {
+    try {
+        const response = await fetch('/api/v1/benchmark/summary');
+        if (!response.ok) {
+            throw new Error(`summary failed with status ${response.status}`);
+        }
+
+        const payload = await response.json();
+        const trees = Array.isArray(payload.trees) ? payload.trees : [];
+        if (!trees.length) {
+            return {
+                labels: [],
+                datasets: []
+            };
+        }
+
+        const palette = {
+            avl: {
+                label: 'AVL Tree',
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.6)'
+            },
+            red_black: {
+                label: 'Red-Black Tree',
+                borderColor: '#00d4ff',
+                backgroundColor: 'rgba(0, 212, 255, 0.6)'
+            },
+            splay: {
+                label: 'Splay Tree',
+                borderColor: '#f59e0b',
+                backgroundColor: 'rgba(245, 158, 11, 0.6)'
+            }
+        };
+
+        return {
+            labels: ['Пошук', 'Вставка', 'Видалення'],
+            datasets: trees.map((tree) => {
+                const style = palette[tree.treeType] || {
+                    label: tree.treeType,
+                    borderColor: '#c084fc',
+                    backgroundColor: 'rgba(192, 132, 252, 0.6)'
+                };
+                return {
+                    label: style.label,
+                    data: [
+                        Number(tree.averageSearchTimeNs ?? 0),
+                        Number(tree.averageInsertTimeNs ?? 0),
+                        Number(tree.averageDeleteTimeNs ?? 0)
+                    ],
+                    backgroundColor: style.backgroundColor,
+                    borderColor: style.borderColor,
+                    borderWidth: 2
+                };
+            })
+        };
+    } catch (error) {
+        console.error('Failed to load operation times data', error);
+        return {
+            labels: [],
+            datasets: []
+        };
+    }
 }
 
 // Line Chart - Tree Height Growth

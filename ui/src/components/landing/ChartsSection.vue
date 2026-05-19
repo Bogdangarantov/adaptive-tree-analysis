@@ -6,7 +6,7 @@
 
       <div class="charts-grid">
         <div class="chart-card glass-card fade-in">
-          <h3><i class="fas fa-chart-bar"></i> Часова складність операцій</h3>
+          <h3><i class="fas fa-chart-bar"></i> Середній час операцій</h3>
           <div style="height: 350px; position: relative;">
             <canvas id="complexityChart"></canvas>
           </div>
