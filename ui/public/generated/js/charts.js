@@ -100,50 +100,24 @@ function createComplexityChart() {
 }
 
 // Line Chart - Tree Height Growth
-function createHeightChart() {
-    const ctx = document.getElementById('heightChart').getContext('2d');
-    
-    const nodeCount = [10, 50, 100, 500, 1000, 5000, 10000];
-    
+async function createHeightChart() {
+    const canvas = document.getElementById('heightChart');
+    if (!canvas) {
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    const realData = await loadHeightGrowthData();
+    const chartData = realData ?? {
+        labels: [],
+        datasets: []
+    };
+
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: nodeCount,
-            datasets: [
-                {
-                    label: 'AVL Tree Height',
-                    data: [3.3, 5.6, 6.6, 8.9, 9.9, 12.3, 13.3],
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true,
-                    pointRadius: 5,
-                    pointHoverRadius: 7
-                },
-                {
-                    label: 'Red-Black Tree Height',
-                    data: [3.5, 5.8, 6.8, 9.1, 10.1, 12.5, 13.5],
-                    borderColor: '#00d4ff',
-                    backgroundColor: 'rgba(0, 212, 255, 0.1)',
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true,
-                    pointRadius: 5,
-                    pointHoverRadius: 7
-                },
-                {
-                    label: 'Extensible Tree Height',
-                    data: [3.2, 5.4, 6.4, 8.7, 9.7, 12.1, 13.1],
-                    borderColor: '#7c3aed',
-                    backgroundColor: 'rgba(124, 58, 237, 0.1)',
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true,
-                    pointRadius: 5,
-                    pointHoverRadius: 7
-                }
-            ]
+            labels: chartData.labels,
+            datasets: chartData.datasets
         },
         options: {
             responsive: true,
@@ -167,7 +141,24 @@ function createHeightChart() {
                     bodyColor: '#ffffff',
                     borderColor: 'rgba(0, 212, 255, 0.3)',
                     borderWidth: 1,
-                    padding: 12
+                    padding: 12,
+                    callbacks: {
+                        label: function(context) {
+                            const rawPoint = context.raw || {};
+                            const value = typeof rawPoint.y === 'number' ? rawPoint.y.toFixed(2) : context.formattedValue;
+                            const runCount = rawPoint.runCount ? ` (${rawPoint.runCount} runs)` : '';
+                            return `${context.dataset.label}: ${value}${runCount}`;
+                        }
+                    }
+                },
+                title: {
+                    display: !chartData.datasets.length,
+                    text: 'Немає реальних benchmark-даних для графіка висоти',
+                    color: '#94a3b8',
+                    font: {
+                        family: 'Inter',
+                        size: 13
+                    }
                 }
             },
             scales: {
@@ -221,6 +212,82 @@ function createHeightChart() {
             }
         }
     });
+}
+
+async function loadHeightGrowthData() {
+    try {
+        const response = await fetch('/api/v1/benchmark/height-growth');
+        if (!response.ok) {
+            throw new Error(`height-growth failed with status ${response.status}`);
+        }
+
+        const payload = await response.json();
+        const series = Array.isArray(payload.series) ? payload.series : [];
+        const labels = [...new Set(series.flatMap((entry) => (entry.points || []).map((point) => Number(point.datasetSize))))].sort((a, b) => a - b);
+
+        if (!labels.length) {
+            return {
+                labels: [],
+                datasets: []
+            };
+        }
+
+        const palette = {
+            avl: {
+                label: 'AVL Tree Height',
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)'
+            },
+            'red-black': {
+                label: 'Red-Black Tree Height',
+                borderColor: '#00d4ff',
+                backgroundColor: 'rgba(0, 212, 255, 0.1)'
+            },
+            splay: {
+                label: 'Splay Tree Height',
+                borderColor: '#f59e0b',
+                backgroundColor: 'rgba(245, 158, 11, 0.12)'
+            }
+        };
+
+        return {
+            labels,
+            datasets: series.map((entry) => {
+                const style = palette[entry.treeType] || {
+                    label: entry.treeType,
+                    borderColor: '#c084fc',
+                    backgroundColor: 'rgba(192, 132, 252, 0.12)'
+                };
+                const pointsBySize = new Map((entry.points || []).map((point) => [
+                    Number(point.datasetSize),
+                    {
+                        x: Number(point.datasetSize),
+                        y: Number(point.averageTreeHeight),
+                        runCount: Number(point.runCount || 0)
+                    }
+                ]));
+
+                return {
+                    label: style.label,
+                    data: labels.map((label) => pointsBySize.get(label) ?? null),
+                    borderColor: style.borderColor,
+                    backgroundColor: style.backgroundColor,
+                    borderWidth: 3,
+                    tension: 0.35,
+                    fill: true,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    spanGaps: true
+                };
+            })
+        };
+    } catch (error) {
+        console.error('Failed to load height growth data', error);
+        return {
+            labels: [],
+            datasets: []
+        };
+    }
 }
 
 // Radar Chart - Multi-Metric Comparison
